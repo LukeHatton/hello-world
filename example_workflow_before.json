@@ -1,0 +1,43 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "example.png"
+    }
+  },
+  "2": {
+    "class_type": "GroundingDinoModelLoader",
+    "inputs": {
+      "model_name": "GroundingDINO_SwinB (938MB)"
+    }
+  },
+  "3": {
+    "class_type": "GroundingDinoSAMSegment",
+    "inputs": {
+      "dino_model": ["2", 0],
+      "image": ["1", 0],
+      "prompt": "person, car, dog, cat",
+      "threshold": 0.3
+    }
+  },
+  "4": {
+    "class_type": "SAMModelLoader",
+    "inputs": {
+      "model_name": "sam_vit_h (2.56GB)"
+    }
+  },
+  "5": {
+    "class_type": "GroundingDinoSAMSegment",
+    "inputs": {
+      "sam_model": ["4", 0],
+      "grounding_dino_output": ["3", 0],
+      "image": ["1", 0]
+    }
+  },
+  "6": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": ["5", 0]
+    }
+  }
+}
