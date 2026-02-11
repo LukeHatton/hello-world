@@ -1,5 +1,11 @@
 # ComfyUI Workflow Migration Tool
 
+## 🎯 [START HERE](START_HERE.md) - Quick Start Guide
+
+**New to this project?** Read **[START_HERE.md](START_HERE.md)** first!
+
+---
+
 ## 项目简介 (Project Overview)
 
 This repository provides tools and documentation for migrating ComfyUI workflows from unstable GroundingDino nodes to more reliable alternatives like Florence-2.
