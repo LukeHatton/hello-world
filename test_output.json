@@ -1,0 +1,123 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "example.png"
+    }
+  },
+  "2": {
+    "class_type": "Florence2ModelLoader",
+    "inputs": {
+      "model": "microsoft/florence-2-large",
+      "precision": "fp16",
+      "attention": "sdpa"
+    }
+  },
+  "3": {
+    "class_type": "SAM2",
+    "inputs": {
+      "coordinates": [
+        "3_coords",
+        0
+      ],
+      "individual_objects": true,
+      "image": [
+        "1",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "SAMModelLoader",
+    "inputs": {
+      "model_name": "sam_vit_h (2.56GB)"
+    }
+  },
+  "5": {
+    "class_type": "SAM2",
+    "inputs": {
+      "coordinates": [
+        "5_coords",
+        0
+      ],
+      "individual_objects": true,
+      "sam_model": [
+        "4",
+        0
+      ],
+      "image": [
+        "1",
+        0
+      ]
+    }
+  },
+  "6": {
+    "class_type": "PreviewImage",
+    "inputs": {
+      "images": [
+        "5",
+        0
+      ]
+    }
+  },
+  "3_florence": {
+    "class_type": "Florence2Run",
+    "inputs": {
+      "task": "object_detection",
+      "text_input": "Detect person, car, dog, cat in the image",
+      "fill_mask": true,
+      "max_new_tokens": 1024,
+      "num_beams": 3,
+      "do_sample": true,
+      "output_mask_select": "",
+      "seed": 42,
+      "keep_model_loaded": true,
+      "image": [
+        "1",
+        0
+      ],
+      "model": [
+        "2",
+        0
+      ]
+    }
+  },
+  "3_coords": {
+    "class_type": "Florence2toCoordinates",
+    "inputs": {
+      "florence2_result": [
+        "3_florence",
+        0
+      ],
+      "index": "all"
+    }
+  },
+  "5_florence": {
+    "class_type": "Florence2Run",
+    "inputs": {
+      "task": "object_detection",
+      "text_input": "Detect objects in the image",
+      "fill_mask": true,
+      "max_new_tokens": 1024,
+      "num_beams": 3,
+      "do_sample": true,
+      "output_mask_select": "",
+      "seed": 42,
+      "keep_model_loaded": true,
+      "image": [
+        "1",
+        0
+      ]
+    }
+  },
+  "5_coords": {
+    "class_type": "Florence2toCoordinates",
+    "inputs": {
+      "florence2_result": [
+        "5_florence",
+        0
+      ],
+      "index": "all"
+    }
+  }
+}

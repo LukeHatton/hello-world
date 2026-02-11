@@ -12,6 +12,25 @@ import sys
 import argparse
 from typing import Dict, Any
 
+# Constants
+DEFAULT_SEED = 42
+DEFAULT_PROMPT = "Detect objects in the image"
+
+
+def format_detection_prompt(prompt: str) -> str:
+    """
+    Format a prompt for Florence-2 object detection.
+    
+    Args:
+        prompt: The raw prompt from GroundingDino (e.g., "person, car, dog")
+    
+    Returns:
+        A formatted prompt suitable for Florence-2
+    """
+    if not prompt:
+        return DEFAULT_PROMPT
+    return f"Detect {prompt} in the image"
+
 
 def migrate_grounding_dino_model_loader(node: Dict[str, Any]) -> Dict[str, Any]:
     """Replace GroundingDinoModelLoader with Florence2ModelLoader"""
@@ -30,17 +49,20 @@ def migrate_grounding_dino_detect(node: Dict[str, Any]) -> Dict[str, Any]:
     inputs = node.get("inputs", {})
     prompt = inputs.get("prompt", inputs.get("text_prompt", ""))
     
+    if not prompt:
+        print("  ⚠ Warning: No prompt found, using default prompt")
+    
     new_node = {
         "class_type": "Florence2Run",
         "inputs": {
             "task": "object_detection",
-            "text_input": f"Detect {prompt} in the image" if prompt else "Detect objects in the image",
+            "text_input": format_detection_prompt(prompt),
             "fill_mask": True,
             "max_new_tokens": 1024,
             "num_beams": 3,
             "do_sample": True,
             "output_mask_select": "",
-            "seed": 42,
+            "seed": DEFAULT_SEED,
             "keep_model_loaded": True
         }
     }
@@ -60,6 +82,10 @@ def migrate_grounding_dino_segment(node: Dict[str, Any], workflow: Dict[str, Any
     Returns multiple nodes to replace the single GroundingDino node
     """
     inputs = node.get("inputs", {})
+    prompt = inputs.get("prompt", "")
+    
+    if not prompt:
+        print("  ⚠ Warning: No prompt found in segment node, using default")
     
     # Create three new nodes to replace the single GroundingDino segment node
     nodes = {}
@@ -70,13 +96,13 @@ def migrate_grounding_dino_segment(node: Dict[str, Any], workflow: Dict[str, Any
         "class_type": "Florence2Run",
         "inputs": {
             "task": "object_detection",
-            "text_input": f"Detect {inputs.get('prompt', 'objects')} in the image",
+            "text_input": format_detection_prompt(prompt),
             "fill_mask": True,
             "max_new_tokens": 1024,
             "num_beams": 3,
             "do_sample": True,
             "output_mask_select": "",
-            "seed": 42,
+            "seed": DEFAULT_SEED,
             "keep_model_loaded": True
         }
     }
